@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: pihole
+  labels:
+    app: pihole
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pihole
+  template:
+    metadata:
+      labels:
+        app: pihole
+        name: pihole
+    spec:
+      volumes:
+        - name: pihole-local-etc-volume
+          persistentVolumeClaim:
+            claimName: pihole-local-etc-claim
+        - name: pihole-local-dnsmasq-volume
+          persistentVolumeClaim:
+            claimName: pihole-local-dnsmasq-claim
+      containers:
+        - name: pihole
+          image: pihole/pihole:latest
+          imagePullPolicy: always
+          env:
+            - name: TZ
+              value: "UTC"
+            - name: WEBPASSWORD
+              value: "pihole"
+          volumeMounts:
+            - name: pihole-local-etc-volume
+              mountPath: "/etc/pihole"
+            - name: pihole-local-dnsmasq-volume
+              mountPath: "/etc/dnsmasq.d"
+
